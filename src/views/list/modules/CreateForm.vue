@@ -1,6 +1,6 @@
 <template>
   <a-modal
-    title="新建规则"
+    title="新建账户"
     :width="640"
     :visible="visible"
     :confirmLoading="loading"
@@ -10,10 +10,20 @@
     <a-spin :spinning="loading">
       <a-form :form="form" v-bind="formLayout">
         <!-- 检查是否有 id 并且大于0，大于0是修改。其他是新增，新增不显示主键ID -->
-        <a-form-item v-show="model && model.id > 0" label="主键ID">
+        <!-- <a-form-item v-show="model && model.id > 0" label="主键ID">
           <a-input v-decorator="['id', { initialValue: 0 }]" disabled />
+        </a-form-item> -->
+        <a-form-item label="交易所名称">
+          <!-- <a-input v-decorator="['description', {rules: [{required: true, min: 5, message: '请输入至少五个字符的规则描述！'}]}]" /> -->
+          <a-select v-decorator="['description', {rules: [{required: true, min: 5, message: '请输入至少五个字符的规则描述！'}]}]" placeholder="请选择" default-value="0">
+            <a-select-option value="0">火币</a-select-option>
+            <a-select-option value="1">OKEX</a-select-option>
+          </a-select>
         </a-form-item>
-        <a-form-item label="描述">
+        <a-form-item label="秘钥">
+          <a-input v-decorator="['description', {rules: [{required: true, min: 5, message: '请输入至少五个字符的规则描述！'}]}]" />
+        </a-form-item>
+        <a-form-item label="账户别名">
           <a-input v-decorator="['description', {rules: [{required: true, min: 5, message: '请输入至少五个字符的规则描述！'}]}]" />
         </a-form-item>
       </a-form>
@@ -42,7 +52,7 @@ export default {
       default: () => null
     }
   },
-  data () {
+  data() {
     this.formLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -57,7 +67,7 @@ export default {
       form: this.$form.createForm(this)
     }
   },
-  created () {
+  created() {
     console.log('custom modal created')
 
     // 防止表单未注册
