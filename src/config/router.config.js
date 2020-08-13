@@ -1,19 +1,14 @@
 // eslint-disable-next-line
-import {
-  UserLayout,
-  BasicLayout,
-  BlankLayout
-} from '@/layouts'
-import {
-  bxAnaalyse
-} from '@/core/icons'
+import { UserLayout, BasicLayout, BlankLayout } from '@/layouts'
+import { bxAnaalyse } from '@/core/icons'
 
 const RouteView = {
   name: 'RouteView',
-  render: (h) => h('router-view')
+  render: h => h('router-view')
 }
 
-export const asyncRouterMap = [{
+export const asyncRouterMap = [
+  {
     path: '/',
     name: 'index',
     component: BasicLayout,
@@ -21,19 +16,32 @@ export const asyncRouterMap = [{
       title: 'menu.home'
     },
     redirect: '/account-list',
-    children: [{
-      path: '/account-list',
-      name: 'TableListWrapper',
-      hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
-      component: () =>
-        import ('@/views/list/TableList'),
-      meta: {
-        title: '账户列表',
-        icon: 'form',
-        keepAlive: true,
-        permission: ['table']
+    children: [
+      {
+        path: '/account-list',
+        name: 'TableListWrapper',
+        hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+        component: () => import('@/views/list/TableList'),
+        meta: {
+          title: '账户列表',
+          icon: 'form',
+          keepAlive: true,
+          permission: ['table']
+        }
+      },
+      {
+        path: '/exchange-list',
+        name: 'ExchangeListWrapper',
+        hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+        component: () => import('@/views/exchange/index'),
+        meta: {
+          title: '交易所管理',
+          icon: 'form',
+          keepAlive: true,
+          permission: ['table']
+        }
       }
-    }]
+    ]
   },
   // {
   //   path: '/',
@@ -363,28 +371,27 @@ export const asyncRouterMap = [{
  * 基础路由
  * @type { *[] }
  */
-export const constantRouterMap = [{
+export const constantRouterMap = [
+  {
     path: '/user',
     component: UserLayout,
     redirect: '/user/login',
     hidden: true,
-    children: [{
+    children: [
+      {
         path: 'login',
         name: 'login',
-        component: () =>
-          import ( /* webpackChunkName: "user" */ '@/views/user/Login')
+        component: () => import(/* webpackChunkName: "user" */ '@/views/user/Login')
       },
       {
         path: 'register',
         name: 'register',
-        component: () =>
-          import ( /* webpackChunkName: "user" */ '@/views/user/Register')
+        component: () => import(/* webpackChunkName: "user" */ '@/views/user/Register')
       },
       {
         path: 'register-result',
         name: 'registerResult',
-        component: () =>
-          import ( /* webpackChunkName: "user" */ '@/views/user/RegisterResult')
+        component: () => import(/* webpackChunkName: "user" */ '@/views/user/RegisterResult')
       },
       {
         path: 'recover',
@@ -396,8 +403,6 @@ export const constantRouterMap = [{
 
   {
     path: '/404',
-    component: () =>
-      import ( /* webpackChunkName: "fail" */ '@/views/exception/404')
+    component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/404')
   }
-
 ]
