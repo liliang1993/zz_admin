@@ -6,6 +6,14 @@
         <a-input
           size="large"
           type="text"
+          placeholder="账号"
+          v-decorator="['username', {rules: [{ required: true, message: '请输入账号' }], validateTrigger: ['change', 'blur']}]"
+        ></a-input>
+      </a-form-item>
+      <a-form-item>
+        <a-input
+          size="large"
+          type="text"
           placeholder="邮箱"
           v-decorator="['email', {rules: [{ required: true, type: 'email', message: '请输入邮箱地址' }], validateTrigger: ['change', 'blur']}]"
         ></a-input>
@@ -42,40 +50,6 @@
           v-decorator="['password2', {rules: [{ required: true, message: '至少6位密码，区分大小写' }, { validator: this.handlePasswordCheck }], validateTrigger: ['change', 'blur']}]"
         ></a-input-password>
       </a-form-item>
-
-      <a-form-item>
-        <a-input size="large" placeholder="11 位手机号" v-decorator="['mobile', {rules: [{ required: true, message: '请输入正确的手机号', pattern: /^1[3456789]\d{9}$/ }, { validator: this.handlePhoneCheck } ], validateTrigger: ['change', 'blur'] }]">
-          <a-select slot="addonBefore" size="large" defaultValue="+86">
-            <a-select-option value="+86">+86</a-select-option>
-            <a-select-option value="+87">+87</a-select-option>
-          </a-select>
-        </a-input>
-      </a-form-item>
-      <!--<a-input-group size="large" compact>
-            <a-select style="width: 20%" size="large" defaultValue="+86">
-              <a-select-option value="+86">+86</a-select-option>
-              <a-select-option value="+87">+87</a-select-option>
-            </a-select>
-            <a-input style="width: 80%" size="large" placeholder="11 位手机号"></a-input>
-          </a-input-group>-->
-
-      <a-row :gutter="16">
-        <a-col class="gutter-row" :span="16">
-          <a-form-item>
-            <a-input size="large" type="text" placeholder="验证码" v-decorator="['captcha', {rules: [{ required: true, message: '请输入验证码' }], validateTrigger: 'blur'}]">
-              <a-icon slot="prefix" type="mail" :style="{ color: 'rgba(0,0,0,.25)' }"/>
-            </a-input>
-          </a-form-item>
-        </a-col>
-        <a-col class="gutter-row" :span="8">
-          <a-button
-            class="getCaptcha"
-            size="large"
-            :disabled="state.smsSendBtn"
-            @click.stop.prevent="getCaptcha"
-            v-text="!state.smsSendBtn && '获取验证码'||(state.time+' s')"></a-button>
-        </a-col>
-      </a-row>
 
       <a-form-item>
         <a-button
@@ -118,10 +92,9 @@ const levelColor = {
 }
 export default {
   name: 'Register',
-  components: {
-  },
+  components: {},
   mixins: [deviceMixin],
-  data () {
+  data() {
     return {
       form: this.$form.createForm(this),
 
@@ -137,18 +110,18 @@ export default {
     }
   },
   computed: {
-    passwordLevelClass () {
+    passwordLevelClass() {
       return levelClass[this.state.passwordLevel]
     },
-    passwordLevelName () {
+    passwordLevelName() {
       return levelNames[this.state.passwordLevel]
     },
-    passwordLevelColor () {
+    passwordLevelColor() {
       return levelColor[this.state.passwordLevel]
     }
   },
   methods: {
-    handlePasswordLevel (rule, value, callback) {
+    handlePasswordLevel(rule, value, callback) {
       let level = 0
 
       // 判断这个字符串中有没有数字
@@ -178,7 +151,7 @@ export default {
       }
     },
 
-    handlePasswordCheck (rule, value, callback) {
+    handlePasswordCheck(rule, value, callback) {
       const password = this.form.getFieldValue('password')
       console.log('value', value)
       if (value === undefined) {
@@ -190,7 +163,7 @@ export default {
       callback()
     },
 
-    handlePhoneCheck (rule, value, callback) {
+    handlePhoneCheck(rule, value, callback) {
       console.log('handlePhoneCheck, rule:', rule)
       console.log('handlePhoneCheck, value', value)
       console.log('handlePhoneCheck, callback', callback)
@@ -198,7 +171,7 @@ export default {
       callback()
     },
 
-    handlePasswordInputClick () {
+    handlePasswordInputClick() {
       if (!this.isMobile) {
         this.state.passwordLevelChecked = true
         return
@@ -206,7 +179,7 @@ export default {
       this.state.passwordLevelChecked = false
     },
 
-    handleSubmit () {
+    handleSubmit() {
       const { form: { validateFields }, state, $router } = this
       validateFields({ force: true }, (err, values) => {
         if (!err) {
@@ -216,44 +189,44 @@ export default {
       })
     },
 
-    getCaptcha (e) {
+    getCaptcha(e) {
       e.preventDefault()
       const { form: { validateFields }, state, $message, $notification } = this
 
-      validateFields(['mobile'], { force: true },
-        (err, values) => {
-          if (!err) {
-            state.smsSendBtn = true
+      validateFields(['mobile'], { force: true }, (err, values) => {
+        if (!err) {
+          state.smsSendBtn = true
 
-            const interval = window.setInterval(() => {
-              if (state.time-- <= 0) {
-                state.time = 60
-                state.smsSendBtn = false
-                window.clearInterval(interval)
-              }
-            }, 1000)
+          const interval = window.setInterval(() => {
+            if (state.time-- <= 0) {
+              state.time = 60
+              state.smsSendBtn = false
+              window.clearInterval(interval)
+            }
+          }, 1000)
 
-            const hide = $message.loading('验证码发送中..', 0)
+          const hide = $message.loading('验证码发送中..', 0)
 
-            getSmsCaptcha({ mobile: values.mobile }).then(res => {
+          getSmsCaptcha({ mobile: values.mobile })
+            .then(res => {
               setTimeout(hide, 2500)
               $notification['success']({
                 message: '提示',
                 description: '验证码获取成功，您的验证码为：' + res.result.captcha,
                 duration: 8
               })
-            }).catch(err => {
+            })
+            .catch(err => {
               setTimeout(hide, 1)
               clearInterval(interval)
               state.time = 60
               state.smsSendBtn = false
               this.requestFailed(err)
             })
-          }
         }
-      )
+      })
     },
-    requestFailed (err) {
+    requestFailed(err) {
       this.$notification['error']({
         message: '错误',
         description: ((err.response || {}).data || {}).message || '请求出现错误，请稍后再试',
@@ -263,56 +236,53 @@ export default {
     }
   },
   watch: {
-    'state.passwordLevel' (val) {
+    'state.passwordLevel'(val) {
       console.log(val)
     }
   }
 }
 </script>
 <style lang="less">
-  .user-register {
-
-    &.error {
-      color: #ff0000;
-    }
-
-    &.warning {
-      color: #ff7e05;
-    }
-
-    &.success {
-      color: #52c41a;
-    }
-
+.user-register {
+  &.error {
+    color: #ff0000;
   }
 
-  .user-layout-register {
-    .ant-input-group-addon:first-child {
-      background-color: #fff;
-    }
+  &.warning {
+    color: #ff7e05;
   }
+
+  &.success {
+    color: #52c41a;
+  }
+}
+
+.user-layout-register {
+  .ant-input-group-addon:first-child {
+    background-color: #fff;
+  }
+}
 </style>
 <style lang="less" scoped>
-  .user-layout-register {
-
-    & > h3 {
-      font-size: 16px;
-      margin-bottom: 20px;
-    }
-
-    .getCaptcha {
-      display: block;
-      width: 100%;
-      height: 40px;
-    }
-
-    .register-button {
-      width: 50%;
-    }
-
-    .login {
-      float: right;
-      line-height: 40px;
-    }
+.user-layout-register {
+  & > h3 {
+    font-size: 16px;
+    margin-bottom: 20px;
   }
+
+  .getCaptcha {
+    display: block;
+    width: 100%;
+    height: 40px;
+  }
+
+  .register-button {
+    width: 50%;
+  }
+
+  .login {
+    float: right;
+    line-height: 40px;
+  }
+}
 </style>

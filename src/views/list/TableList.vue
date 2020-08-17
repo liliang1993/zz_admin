@@ -166,6 +166,31 @@ const columns = [
     scopedSlots: { customRender: 'status' }
   },
   {
+    title: '总资金量',
+    dataIndex: 'status',
+    scopedSlots: { customRender: 'status' }
+  },
+  {
+    title: '涨跌幅',
+    dataIndex: 'status',
+    scopedSlots: { customRender: 'status' }
+  },
+  {
+    title: '当前收益',
+    dataIndex: 'status',
+    scopedSlots: { customRender: 'status' }
+  },
+  {
+    title: '保证金',
+    dataIndex: 'status',
+    scopedSlots: { customRender: 'status' }
+  },
+  {
+    title: '是否预警',
+    dataIndex: 'status',
+    scopedSlots: { customRender: 'status' }
+  },
+  {
     title: '操作',
     dataIndex: 'action',
     width: '150px',
@@ -215,10 +240,10 @@ export default {
       // 查询参数
       queryParam: {},
       // 加载数据方法 必须为 Promise 对象
-      loadData: (parameter) => {
+      loadData: parameter => {
         const requestParameters = Object.assign({}, parameter, this.queryParam)
         console.log('loadData request parameters:', requestParameters)
-        return getServiceList(requestParameters).then((res) => {
+        return getServiceList(requestParameters).then(res => {
           return res.result
         })
       },
@@ -266,7 +291,7 @@ export default {
               setTimeout(() => {
                 resolve()
               }, 1000)
-            }).then((res) => {
+            }).then(res => {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据
@@ -282,7 +307,7 @@ export default {
               setTimeout(() => {
                 resolve()
               }, 1000)
-            }).then((res) => {
+            }).then(res => {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据

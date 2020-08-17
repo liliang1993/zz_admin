@@ -100,7 +100,7 @@
       <a-form-item>
         <a-checkbox v-decorator="['rememberMe', { valuePropName: 'checked' }]">自动登录</a-checkbox>
         <router-link
-          :to="{ name: 'recover', params: { user: 'aaa'} }"
+          :to="{ name: 'register' }"
           class="forge-password"
           style="float: right;"
         >注册用户</router-link>
