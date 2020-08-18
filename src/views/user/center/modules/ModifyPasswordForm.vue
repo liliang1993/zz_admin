@@ -1,6 +1,6 @@
 <template>
   <a-modal
-    title="预警设置"
+    title="密码修改"
     :width="640"
     :visible="visible"
     :confirmLoading="loading"
@@ -21,18 +21,20 @@
         <!-- <a-form-item v-show="model && model.id > 0" label="主键ID">
           <a-input v-decorator="['id', { initialValue: 0 }]" disabled />
         </a-form-item> -->
-        <a-form-item label="预警波动率">
+        <a-form-item label="账号别名">
           <a-input-number
             id="inputNumber"
-            v-decorator="[
-              'description',
-              { rules: [{ required: true, message: '请输入预警波动率！' }] }
-            ]"
+            v-decorator="['description', { rules: [{ required: true, message: '请输入账号别名！' }] }]"
           />
           <!-- <a-input v-decorator="['description', {rules: [{required: true, min: 5, message: '请输入至少五个字符的规则描述！'}]}]" /> -->
         </a-form-item>
-        <a-form-item label="预警邮箱">
-          <a-input v-decorator="['email', {rules: [{ required: true, type: 'email', message: '请输入预警邮箱' }], validateTrigger: [ 'blur']}]"/>
+        <a-form-item label="">
+          <a-input
+            v-decorator="[
+              'email',
+              { rules: [{ required: true, type: 'email', message: '请输入预警邮箱' }], validateTrigger: ['blur'] }
+            ]"
+          />
         </a-form-item>
         <a-form-item label="是否开启预警">
           <a-switch checked-children="开" un-checked-children="关" default-checked />
@@ -82,7 +84,7 @@ export default {
     console.log('custom modal created')
 
     // 防止表单未注册
-    fields.forEach(v => this.form.getFieldDecorator(v))
+    fields.forEach((v) => this.form.getFieldDecorator(v))
 
     // 当 model 发生改变时，为表单设置值
     this.$watch('model', () => {
