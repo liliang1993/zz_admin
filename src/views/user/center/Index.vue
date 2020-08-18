@@ -1,27 +1,42 @@
 <template>
-  <a-card :bordered="false" title="安全设置" :bodyStyle="{ height: '100%' }" :style="{ height: '100%' }">
-    <a-list itemLayout="horizontal" :dataSource="data">
-      <a-list-item slot="renderItem" slot-scope="item, index" :key="index">
-        <a-list-item-meta>
-          <a slot="title">{{ item.title }}</a>
-          <span slot="description">
-            <span class="security-list-description">{{ item.description }}</span>
-            <span v-if="item.value"> : </span>
-            <span class="security-list-value">{{ item.value }}</span>
-          </span>
-        </a-list-item-meta>
-        <template v-if="item.actions">
-          <a slot="actions" @click="item.actions.callback">{{ item.actions.title }}</a>
-        </template>
-      </a-list-item>
-    </a-list>
-  </a-card>
+  <div>
+    <a-card :bordered="false" title="安全设置" :bodyStyle="{ height: '100%' }" :style="{ height: '100%' }">
+      <a-list itemLayout="horizontal" :dataSource="data">
+        <a-list-item slot="renderItem" slot-scope="item, index" :key="index">
+          <a-list-item-meta>
+            <a slot="title">{{ item.title }}</a>
+            <span slot="description">
+              <span class="security-list-description">{{ item.description }}</span>
+              <span v-if="item.value"> : </span>
+              <span class="security-list-value">{{ item.value }}</span>
+            </span>
+          </a-list-item-meta>
+          <template v-if="item.actions">
+            <a slot="actions" @click="item.actions.callback">{{ item.actions.title }}</a>
+          </template>
+        </a-list-item>
+      </a-list>
+    </a-card>
+    <modify-password-form
+      ref="modifyPasswordModal"
+      :visible="modifyPasswordVisible"
+      :model="mdl"
+      @cancel="handleCancel"
+      @ok="handleOk">
+    </modify-password-form>
+  </div>
 </template>
 
 <script>
+import ModifyPasswordForm from './modules/ModifyPasswordForm'
 export default {
+  components: {
+    ModifyPasswordForm
+  },
   data() {
     return {
+      modifyPasswordVisible: false,
+      mdl: null,
       data: [
         {
           title: '账户密码',
@@ -30,7 +45,7 @@ export default {
           actions: {
             title: '修改',
             callback: () => {
-              this.$message.info('This is a normal message')
+              this.modifyPasswordVisible = true
             }
           }
         },
@@ -47,10 +62,14 @@ export default {
         }
       ]
     }
+  },
+  methods: {
+    handleCancel () {
+      this.modifyPasswordVisible = false
+    }
   }
 }
 </script>
 
 <style scoped>
-
 </style>

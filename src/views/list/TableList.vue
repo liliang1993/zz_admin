@@ -108,14 +108,14 @@
 
         <span slot="action" slot-scope="text, record">
           <template>
-            <a @click="handleSub(record)">修改</a>
+            <a @click.stop="handleSub(record)">修改</a>
             <a-divider type="vertical" />
             <a-popconfirm title="确定删除？" ok-text="确定" cancel-text="取消">
               <a href="#">删除</a>
             </a-popconfirm>
 
             <a-divider type="vertical" />
-            <a @click="handleSub(record)">预警设置</a>
+            <a @click.stop="handleSub(record)">预警设置</a>
           </template>
         </span>
       </s-table>
