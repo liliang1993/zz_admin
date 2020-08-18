@@ -24,7 +24,7 @@
         <a-form-item label="交易所名称">
           <!-- <a-input v-decorator="['description', {rules: [{required: true, min: 5, message: '请输入至少五个字符的规则描述！'}]}]" /> -->
           <a-select
-            v-decorator="['exchange', { rules: [{ required: true, message: '请选择交易所' }] }]"
+            v-decorator="['exchange', { rules: [{ required: true, message: '请选择交易所！' }] }]"
             placeholder="请选择"
             default-value="0"
           >
@@ -35,8 +35,8 @@
         <a-form-item label="秘钥">
           <a-input v-decorator="['secret_key', { rules: [{ required: true, message: '请输入秘钥！' }] }]" />
         </a-form-item>
-        <a-form-item label="账户名称">
-          <a-input v-decorator="['account_name', { rules: [{ required: true, message: '请输入账户名称！' }] }]" />
+        <a-form-item label="账户别名">
+          <a-input v-decorator="['account_name', { rules: [{ required: true, message: '请输入账户别名！' }] }]" />
         </a-form-item>
       </a-form>
     </a-spin>

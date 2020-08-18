@@ -5,7 +5,7 @@
         <a-form layout="inline">
           <a-row :gutter="48">
             <a-col :md="8" :sm="24">
-              <a-form-item label="账户名称">
+              <a-form-item label="账户别名">
                 <a-input v-model="queryParam.id" placeholder="" />
               </a-form-item>
             </a-col>
@@ -83,6 +83,17 @@
         :columns="columns"
         :data="loadData"
         :rowSelection="rowSelection"
+        :customRow="
+          (record) => {
+            return {
+              on: {
+                click: (event) => {
+                  handleRowClick(record)
+                }
+              }
+            }
+          }
+        "
         showPagination="auto"
       >
         <span slot="serial" slot-scope="text, record, index">
@@ -97,6 +108,8 @@
 
         <span slot="action" slot-scope="text, record">
           <template>
+            <a @click="handleSub(record)">修改</a>
+            <a-divider type="vertical" />
             <a-popconfirm title="确定删除？" ok-text="确定" cancel-text="取消">
               <a href="#">删除</a>
             </a-popconfirm>
@@ -168,7 +181,7 @@ const columns = [
   {
     title: '操作',
     dataIndex: 'action',
-    width: '150px',
+    width: '200px',
     scopedSlots: { customRender: 'action' }
   }
 ]
@@ -324,6 +337,11 @@ export default {
       this.queryParam = {
         date: moment(new Date())
       }
+    },
+    handleRowClick(record) {
+      const { id } = record
+      this.$router.push({ name: 'DetailAccount', params: { id } })
+      console.log('record', record)
     }
   }
 }

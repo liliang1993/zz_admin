@@ -30,12 +30,37 @@ export const asyncRouterMap = [
         }
       },
       {
+        path: '/account-detail/:id',
+        name: 'DetailAccount',
+        hidden: 'true',
+        hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+        component: () => import('@/views/account/detail/Index'),
+        meta: {
+          title: '账户详情',
+          icon: 'form',
+          keepAlive: true,
+          permission: ['table']
+        }
+      },
+      {
         path: '/exchange-list',
         name: 'ExchangeListWrapper',
         hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
         component: () => import('@/views/exchange/index'),
         meta: {
           title: '交易所管理',
+          icon: 'form',
+          keepAlive: true,
+          permission: ['table']
+        }
+      },
+      {
+        path: '/user-center',
+        name: 'UserCenter',
+        hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+        component: () => import('@/views/user/center/Index'),
+        meta: {
+          title: '个人中心',
           icon: 'form',
           keepAlive: true,
           permission: ['table']
