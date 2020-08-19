@@ -69,7 +69,7 @@
           size="large"
           placeholder="确认密码"
           v-decorator="[
-            'password2',
+            'cppassword',
             {
               rules: [{ required: true, message: '至少6位密码，区分大小写' }, { validator: this.handlePasswordCheck }],
               validateTrigger: ['change', 'blur']
@@ -96,7 +96,7 @@
 </template>
 
 <script>
-import { getSmsCaptcha } from '@/api/login'
+import { register } from '@/api/login'
 import { deviceMixin } from '@/store/device-mixin'
 
 const levelNames = {
@@ -213,55 +213,19 @@ export default {
         $router
       } = this
       validateFields({ force: true }, (err, values) => {
+        console.log('register', values)
         if (!err) {
           state.passwordLevelChecked = false
-          $router.push({ name: 'registerResult', params: { ...values } })
-        }
-      })
-    },
-
-    getCaptcha(e) {
-      e.preventDefault()
-      const {
-        form: { validateFields },
-        state,
-        $message,
-        $notification
-      } = this
-
-      validateFields(['mobile'], { force: true }, (err, values) => {
-        if (!err) {
-          state.smsSendBtn = true
-
-          const interval = window.setInterval(() => {
-            if (state.time-- <= 0) {
-              state.time = 60
-              state.smsSendBtn = false
-              window.clearInterval(interval)
-            }
-          }, 1000)
-
-          const hide = $message.loading('验证码发送中..', 0)
-
-          getSmsCaptcha({ mobile: values.mobile })
-            .then((res) => {
-              setTimeout(hide, 2500)
-              $notification['success']({
-                message: '提示',
-                description: '验证码获取成功，您的验证码为：' + res.result.captcha,
-                duration: 8
-              })
-            })
+          register(values)
+            .then((res) => {})
             .catch((err) => {
-              setTimeout(hide, 1)
-              clearInterval(interval)
-              state.time = 60
-              state.smsSendBtn = false
-              this.requestFailed(err)
+              console.log('err', err)
             })
+          // $router.push({ name: 'registerResult', params: { ...values } })
         }
       })
     },
+
     requestFailed(err) {
       this.$notification['error']({
         message: '错误',
