@@ -3,6 +3,7 @@ import request from '@/utils/request'
 const userApi = {
   Login: '/user/login',
   Logout: '/auth/logout',
+  ModifyPassword: '/user/updatepwd',
   GetExchangeList: '/user/exchange',
   ForgePassword: '/auth/forge-password',
   Register: '/user/register',
@@ -45,6 +46,25 @@ export function login(parameter) {
 export function register(parameter) {
   return request({
     url: userApi.Register,
+    method: 'post',
+    data: parameter
+  })
+}
+
+/**
+ * login func
+ * parameter: {
+ *     username: '',
+ *     password: '',
+ *     remember_me: true,
+ *     captcha: '12345'
+ * }
+ * @param parameter
+ * @returns {token, user_info}
+ */
+export function modifyPassword(parameter) {
+  return request({
+    url: userApi.ModifyPassword,
     method: 'post',
     data: parameter
   })

@@ -20,14 +20,18 @@
     <modify-password-form
       ref="modifyPasswordModal"
       :visible="modifyPasswordVisible"
+      :loading="modifyPasswordLoading"
       :model="mdl"
       @cancel="handleCancel"
-      @ok="handleOk">
+      @ok="handleOk"
+    >
     </modify-password-form>
   </div>
 </template>
 
 <script>
+import { modifyPassword } from '@/api/login'
+
 import ModifyPasswordForm from './modules/ModifyPasswordForm'
 export default {
   components: {
@@ -36,6 +40,7 @@ export default {
   data() {
     return {
       modifyPasswordVisible: false,
+      modifyPasswordLoading: false,
       mdl: null,
       data: [
         {
@@ -64,8 +69,22 @@ export default {
     }
   },
   methods: {
-    handleCancel () {
+    handleCancel() {
       this.modifyPasswordVisible = false
+    },
+    handleOk() {
+      const form = this.$refs.modifyPasswordModal.form
+      //   this.modifyPasswordLoading = true
+      form.validateFields((errors, values) => {
+        if (!errors) {
+          console.log('values', values)
+          modifyPassword(values)
+            .then((res) => {})
+            .catch((e) => {
+              console.log('err', e)
+            })
+        }
+      })
     }
   }
 }

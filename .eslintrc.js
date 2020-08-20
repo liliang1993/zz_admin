@@ -67,7 +67,8 @@ module.exports = {
         exports: 'never',
         functions: 'never'
       }
-    ]
+    ],
+    camelcase: 'off'
   },
   parserOptions: {
     parser: 'babel-eslint'

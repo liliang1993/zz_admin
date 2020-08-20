@@ -6,13 +6,13 @@
           <a-row :gutter="48">
             <a-col :md="8" :sm="24">
               <a-form-item label="账户别名">
-                <a-input v-model="queryParam.id" placeholder="" />
+                <a-input v-model="queryParam.account_name" placeholder="" />
               </a-form-item>
             </a-col>
             <a-col :md="8" :sm="24">
               <a-form-item label="交易所名称">
-                <a-select v-model="queryParam.status" placeholder="请选择" default-value="0" @dropdownVisibleChange="fetchGetExchangeList">
-                  <a-spin v-if="exchangeLoading" slot="notFoundContent" size="small" />
+                <a-select v-model="queryParam.exchange_id" placeholder="请选择" default-value="0">
+                  <!-- <a-spin v-if="exchangeLoading" slot="notFoundContent" size="small" /> -->
                   <a-select-option v-for="item in exchangeList" :key="item.exchange_id">
                     {{ item.exchange_name }}
                   </a-select-option>
@@ -55,7 +55,7 @@
                 :style="(advanced && { float: 'right', overflow: 'hidden' }) || {}"
               >
                 <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
-                <a-button style="margin-left: 8px;" @click="() => (this.queryParam = {})">重置</a-button>
+                <a-button style="margin-left: 8px;" @click="resetSearchForm">重置</a-button>
                 <!-- <a @click="toggleAdvanced" style="margin-left: 8px">
                   {{ advanced ? '收起' : '展开' }}
                   <a-icon :type="advanced ? 'up' : 'down'"/>
@@ -84,7 +84,6 @@
         rowKey="key"
         :columns="columns"
         :data="loadData"
-        :rowSelection="rowSelection"
         :customRow="
           (record) => {
             return {
@@ -98,22 +97,16 @@
         "
         showPagination="auto"
       >
-        <span slot="serial" slot-scope="text, record, index">
-          {{ index + 1 }}
-        </span>
-        <span slot="status">
-          火币
-        </span>
-        <span slot="description">
-          <ellipsis :length="10" tooltip> Mark </ellipsis>
+        <span slot="exchange" slot-scope="text">
+          {{ text | filterExchange }}
         </span>
 
         <span slot="action" slot-scope="text, record">
           <template>
-            <a @click.stop="handleSub(record)">修改</a>
+            <a @click.stop="handleEdit(record)">修改</a>
             <a-divider type="vertical" />
-            <a-popconfirm title="确定删除？" ok-text="确定" cancel-text="取消">
-              <a href="#">删除</a>
+            <a-popconfirm title="确定删除？" ok-text="确定" cancel-text="取消" @confirm="handleDeleteAccount(record)">
+              <a href="#" @click.stop>删除</a>
             </a-popconfirm>
 
             <a-divider type="vertical" />
@@ -150,61 +143,53 @@ import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
 import { getRoleList, getServiceList } from '@/api/manage'
 import { getExchangeList } from '@/api/login'
+import { getAccountList, addAccount, deleteAccount, modifyAccount } from '@/api/account'
 
 import StepByStepModal from './modules/StepByStepModal'
 import CreateForm from './modules/CreateForm'
 import WarningForm from './modules/WarningForm'
 
 const columns = [
-  {
-    title: '#',
-    scopedSlots: { customRender: 'serial' }
-  },
   // {
-  //   title: '规则编号',
-  //   dataIndex: 'no'
+  //   title: '#',
+  //   scopedSlots: { customRender: 'serial' }
   // },
   {
-    title: '账户名称',
-    dataIndex: 'description',
-    scopedSlots: { customRender: 'description' }
+    title: '账户别名',
+    dataIndex: 'account_name'
   },
   {
-    title: '秘钥',
-    dataIndex: 'callNo',
-    sorter: true
-    // needTotal: true,
-    // customRender: text => text + ' 次'
+    title: 'Access Key',
+    dataIndex: 'account_api_key'
+  },
+  {
+    title: 'Secret Key',
+    dataIndex: 'account_private_key'
   },
   {
     title: '交易所',
-    dataIndex: 'status',
-    scopedSlots: { customRender: 'status' }
+    dataIndex: 'exchange_id',
+    scopedSlots: { customRender: 'exchange' }
   },
   {
     title: '总资金量',
-    dataIndex: 'status',
-    scopedSlots: { customRender: 'status' }
+    dataIndex: 'status1'
   },
   {
     title: '涨跌幅',
-    dataIndex: 'status',
-    scopedSlots: { customRender: 'status' }
+    dataIndex: 'status2'
   },
   {
     title: '当前收益',
-    dataIndex: 'status',
-    scopedSlots: { customRender: 'status' }
+    dataIndex: 'status3'
   },
   {
     title: '保证金',
-    dataIndex: 'status',
-    scopedSlots: { customRender: 'status' }
+    dataIndex: 'status4'
   },
   {
     title: '是否预警',
-    dataIndex: 'status',
-    scopedSlots: { customRender: 'status' }
+    dataIndex: 'status5'
   },
   {
     title: '操作',
@@ -212,6 +197,11 @@ const columns = [
     width: '200px',
     scopedSlots: { customRender: 'action' }
   }
+]
+
+const exchangeMap = [
+  { exchange_id: 1, exchange_name: 'huobi' },
+  { exchange_id: 2, exchange_name: 'okex' }
 ]
 
 const statusMap = {
@@ -254,13 +244,15 @@ export default {
       // 高级搜索 展开/关闭
       advanced: false,
       // 查询参数
-      queryParam: {},
+      queryParam: { account_name: '', exchange_id: '' },
       // 加载数据方法 必须为 Promise 对象
-      loadData: parameter => {
-        const requestParameters = Object.assign({}, parameter, this.queryParam)
+      loadData: (parameter) => {
+        console.log('parameter', parameter)
+        const { pageNo, pageSize } = parameter
+        const requestParameters = { page_number: pageNo, page_size: pageSize, ...this.queryParam }
         console.log('loadData request parameters:', requestParameters)
-        return getServiceList(requestParameters).then(res => {
-          return res.result
+        return getAccountList(requestParameters).then((res) => {
+          return res
         })
       },
       selectedRowKeys: [],
@@ -270,6 +262,9 @@ export default {
     }
   },
   filters: {
+    filterExchange(id) {
+      return exchangeMap.find((item) => item.exchange_id === id)['exchange_name']
+    },
     statusFilter(type) {
       return statusMap[type].text
     },
@@ -279,6 +274,7 @@ export default {
   },
   created() {
     getRoleList({ t: new Date() })
+    this.fetchGetExchangeList() // 获得交易所列表选项
   },
   computed: {
     rowSelection() {
@@ -293,23 +289,21 @@ export default {
       this.mdl = null
       this.visible = true
     },
+
     handleEdit(record) {
       this.visible = true
+      console.log('handleEdit', record)
       this.mdl = { ...record }
     },
+
     handleOk() {
       const form = this.$refs.createModal.form
       this.confirmLoading = true
       form.validateFields((errors, values) => {
         if (!errors) {
           console.log('values', values)
-          if (values.id > 0) {
-            // 修改 e.g.
-            new Promise((resolve, reject) => {
-              setTimeout(() => {
-                resolve()
-              }, 1000)
-            }).then(res => {
+          addAccount(values)
+            .then(() => {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据
@@ -317,68 +311,84 @@ export default {
               // 刷新表格
               this.$refs.table.refresh()
 
-              this.$message.info('修改成功')
+              this.$message.info('账号新增成功')
             })
-          } else {
-            // 新增
-            new Promise((resolve, reject) => {
-              setTimeout(() => {
-                resolve()
-              }, 1000)
-            }).then(res => {
-              this.visible = false
+            .catch((e) => {
               this.confirmLoading = false
-              // 重置表单数据
-              form.resetFields()
-              // 刷新表格
-              this.$refs.table.refresh()
-
-              this.$message.info('新增成功')
+              console.log('err', e)
             })
-          }
         } else {
           this.confirmLoading = false
         }
       })
     },
+
     handleCancel() {
       this.visible = false
 
       const form = this.$refs.createModal.form
       form.resetFields() // 清理表单数据（可不做）
     },
+
     handleWarningOk() {},
+
     handleWarningCancel() {
       this.warningVisible = false
       const form = this.$refs.createModal.form
       form.resetFields() // 清理表单数据（可不做）
     },
+
     fetchGetExchangeList() {
       getExchangeList()
-        .then(res => {})
-        .catch(e => {
+        .then((res) => {
+          this.exchangeList = res
+          console.log('res', res)
+        })
+        .catch((e) => {
           console.log('err', e)
         })
     },
+
     handleSub(record) {
       this.warningVisible = true
     },
+
     onSelectChange(selectedRowKeys, selectedRows) {
       this.selectedRowKeys = selectedRowKeys
       this.selectedRows = selectedRows
     },
+
     toggleAdvanced() {
       this.advanced = !this.advanced
     },
+
     resetSearchForm() {
       this.queryParam = {
-        date: moment(new Date())
+        account_name: '',
+        exchange_id: ''
       }
     },
+
     handleRowClick(record) {
       const { id } = record
       this.$router.push({ name: 'DetailAccount', params: { id } })
       console.log('record', record)
+    },
+
+    handleDeleteAccount(record) {
+      console.log('record', record)
+      // const { account_id } = record
+      deleteAccount({
+        account_id: record.account_id
+      })
+        .then((res) => {
+          console.log('res', res)
+          this.$refs.table.refresh()
+          this.$message.info('删除成功')
+        })
+        .catch((err) => {
+          console.log('err', err)
+        })
     }
   }
 }

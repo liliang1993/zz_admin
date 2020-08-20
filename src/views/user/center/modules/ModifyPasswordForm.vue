@@ -21,18 +21,16 @@
         <!-- <a-form-item v-show="model && model.id > 0" label="主键ID">
           <a-input v-decorator="['id', { initialValue: 0 }]" disabled />
         </a-form-item> -->
-        <a-form-item label="用户名">
+        <!-- <a-form-item label="用户名">
           <a-input v-decorator="['username', {rules: [{required: true, min: 5, message: '请输入用户名'}]}]" />
-        </a-form-item>
+        </a-form-item> -->
         <a-form-item label="旧密码">
           <a-input-password
             placeholder="请输入旧密码"
             v-decorator="[
               'old_password',
               {
-                rules: [
-                  { required: true, message: '至少6位密码，区分大小写' },
-                ],
+                rules: [{ required: true, message: '至少6位密码，区分大小写' }],
                 validateTrigger: ['change', 'blur']
               }
             ]"
@@ -44,9 +42,7 @@
             v-decorator="[
               'new_password',
               {
-                rules: [
-                  { required: true, message: '至少6位密码，区分大小写' },
-                ],
+                rules: [{ required: true, message: '至少6位密码，区分大小写' }],
                 validateTrigger: ['change', 'blur']
               }
             ]"
@@ -60,6 +56,7 @@
               {
                 rules: [
                   { required: true, message: '至少6位密码，区分大小写' },
+                  { validator: this.handlePasswordCheck }
                 ],
                 validateTrigger: ['change', 'blur']
               }
@@ -111,12 +108,25 @@ export default {
     console.log('custom modal created')
 
     // 防止表单未注册
-    fields.forEach(v => this.form.getFieldDecorator(v))
+    fields.forEach((v) => this.form.getFieldDecorator(v))
 
     // 当 model 发生改变时，为表单设置值
     this.$watch('model', () => {
       this.model && this.form.setFieldsValue(pick(this.model, fields))
     })
+  },
+  methods: {
+    handlePasswordCheck(rule, value, callback) {
+      const password = this.form.getFieldValue('new_password')
+      console.log('value', value)
+      if (value === undefined) {
+        callback(new Error('请输入密码'))
+      }
+      if (value && password && value.trim() !== password.trim()) {
+        callback(new Error('两次密码不一致'))
+      }
+      callback()
+    }
   }
 }
 </script>

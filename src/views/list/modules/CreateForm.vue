@@ -24,16 +24,18 @@
         <a-form-item label="交易所名称">
           <!-- <a-input v-decorator="['description', {rules: [{required: true, min: 5, message: '请输入至少五个字符的规则描述！'}]}]" /> -->
           <a-select
-            v-decorator="['exchange', { rules: [{ required: true, message: '请选择交易所！' }] }]"
+            v-decorator="['exchange_id', { rules: [{ required: true, message: '请选择交易所！' }] }]"
             placeholder="请选择"
-            default-value="0"
           >
-            <a-select-option value="0">火币</a-select-option>
-            <a-select-option value="1">OKEX</a-select-option>
+            <a-select-option :value="1">huobi</a-select-option>
+            <a-select-option :value="2">okex</a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item label="秘钥">
-          <a-input v-decorator="['secret_key', { rules: [{ required: true, message: '请输入秘钥！' }] }]" />
+        <a-form-item label="Access Key">
+          <a-input v-decorator="['account_api_key', { rules: [{ required: true, message: '请输入秘钥！' }] }]" />
+        </a-form-item>
+        <a-form-item label="Secret Key">
+          <a-input v-decorator="['account_private_key', { rules: [{ required: true, message: '请输入秘钥！' }] }]" />
         </a-form-item>
         <a-form-item label="账户别名">
           <a-input v-decorator="['account_name', { rules: [{ required: true, message: '请输入账户别名！' }] }]" />
@@ -47,7 +49,7 @@
 import pick from 'lodash.pick'
 
 // 表单字段
-const fields = ['exchange', 'secret_key', 'account_name']
+const fields = ['exchange_id', 'account_api_key', 'account_private_key', 'account_name']
 
 export default {
   props: {
