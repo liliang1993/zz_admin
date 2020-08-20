@@ -3,8 +3,13 @@ import store from '@/store'
 import storage from 'store'
 import notification from 'ant-design-vue/es/notification'
 import message from 'ant-design-vue/es/message'
-import { VueAxios } from './axios'
-import { ACCESS_TOKEN } from '@/store/mutation-types'
+import router from '@/router/index'
+import {
+  VueAxios
+} from './axios'
+import {
+  ACCESS_TOKEN
+} from '@/store/mutation-types'
 
 // 创建 axios 实例
 const request = axios.create({
@@ -25,7 +30,7 @@ const errorHandler = error => {
         description: data.message
       })
     }
-    if (error.response.status === 401 && !(data.result && data.result.isLogin)) {
+    if (error.response.status === 301) {
       notification.error({
         message: 'Unauthorized',
         description: 'Authorization verification failed'
@@ -55,9 +60,23 @@ request.interceptors.request.use(config => {
 
 // response interceptor
 request.interceptors.response.use(response => {
-  const { code, info, result } = response.data
+  const {
+    code,
+    info,
+    result
+  } = response.data
   if (code === 200) {
     return result
+  } else if (code === 301) {
+    notification.error({
+      message: 'Unauthorized',
+      description: 'Authorization verification failed'
+    })
+    const token = storage.get(ACCESS_TOKEN)
+    if (token) {
+      store.dispatch('Logout')
+    }
+    router.push('/user/login')
   } else {
     message.error(info)
     return Promise.reject(response.data)
@@ -73,4 +92,6 @@ const installer = {
 
 export default request
 
-export { installer as VueAxios, request as axios }
+export {
+  installer as VueAxios, request as axios
+}

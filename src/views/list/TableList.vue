@@ -81,7 +81,7 @@
       <s-table
         ref="table"
         size="default"
-        rowKey="key"
+        :rowKey="(record)=>record.account_id"
         :columns="columns"
         :data="loadData"
         :customRow="
@@ -156,6 +156,7 @@ const columns = [
   // },
   {
     title: '账户别名',
+    width: '100px',
     dataIndex: 'account_name'
   },
   {
@@ -168,27 +169,33 @@ const columns = [
   },
   {
     title: '交易所',
+    width: '100px',
     dataIndex: 'exchange_id',
     scopedSlots: { customRender: 'exchange' }
   },
   {
     title: '总资金量',
+    width: '100px',
     dataIndex: 'status1'
   },
   {
     title: '涨跌幅',
+    width: '100px',
     dataIndex: 'status2'
   },
   {
     title: '当前收益',
+    width: '100px',
     dataIndex: 'status3'
   },
   {
     title: '保证金',
+    width: '100px',
     dataIndex: 'status4'
   },
   {
     title: '是否预警',
+    width: '100px',
     dataIndex: 'status5'
   },
   {
@@ -199,10 +206,7 @@ const columns = [
   }
 ]
 
-const exchangeMap = [
-  { exchange_id: 1, exchange_name: 'huobi' },
-  { exchange_id: 2, exchange_name: 'okex' }
-]
+const exchangeMap = [{ exchange_id: 1, exchange_name: 'huobi' }, { exchange_id: 2, exchange_name: 'okex' }]
 
 const statusMap = {
   0: {
@@ -246,12 +250,12 @@ export default {
       // 查询参数
       queryParam: { account_name: '', exchange_id: '' },
       // 加载数据方法 必须为 Promise 对象
-      loadData: (parameter) => {
+      loadData: parameter => {
         console.log('parameter', parameter)
         const { pageNo, pageSize } = parameter
         const requestParameters = { page_number: pageNo, page_size: pageSize, ...this.queryParam }
         console.log('loadData request parameters:', requestParameters)
-        return getAccountList(requestParameters).then((res) => {
+        return getAccountList(requestParameters).then(res => {
           return res
         })
       },
@@ -263,7 +267,7 @@ export default {
   },
   filters: {
     filterExchange(id) {
-      return exchangeMap.find((item) => item.exchange_id === id)['exchange_name']
+      return exchangeMap.find(item => item.exchange_id === id)['exchange_name']
     },
     statusFilter(type) {
       return statusMap[type].text
@@ -313,7 +317,7 @@ export default {
 
               this.$message.info('账号新增成功')
             })
-            .catch((e) => {
+            .catch(e => {
               this.confirmLoading = false
               console.log('err', e)
             })
@@ -340,11 +344,11 @@ export default {
 
     fetchGetExchangeList() {
       getExchangeList()
-        .then((res) => {
+        .then(res => {
           this.exchangeList = res
           console.log('res', res)
         })
-        .catch((e) => {
+        .catch(e => {
           console.log('err', e)
         })
     },
@@ -381,12 +385,12 @@ export default {
       deleteAccount({
         account_id: record.account_id
       })
-        .then((res) => {
+        .then(res => {
           console.log('res', res)
           this.$refs.table.refresh()
           this.$message.info('删除成功')
         })
-        .catch((err) => {
+        .catch(err => {
           console.log('err', err)
         })
     }

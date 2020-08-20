@@ -31,7 +31,7 @@
 
 <script>
 import { modifyPassword } from '@/api/login'
-
+import { mapState } from 'vuex'
 import ModifyPasswordForm from './modules/ModifyPasswordForm'
 export default {
   components: {
@@ -42,31 +42,33 @@ export default {
       modifyPasswordVisible: false,
       modifyPasswordLoading: false,
       mdl: null,
-      data: [
-        {
-          title: '账户密码',
-          description: '',
-          value: '',
-          actions: {
-            title: '修改',
-            callback: () => {
-              this.modifyPasswordVisible = true
-            }
-          }
-        },
-        {
-          title: '我的邮箱',
-          description: '已绑定邮箱',
-          value: 'ant***sign.com',
-          actions: {
-            title: '修改',
-            callback: () => {
-              this.$message.warning('This is message of warning')
-            }
+      data: []
+    }
+  },
+  computed: {
+    ...mapState({
+      user_info: state => state.user.user_info
+    })
+  },
+  created() {
+    this.data = [
+      {
+        title: '账户密码',
+        description: '',
+        value: '',
+        actions: {
+          title: '修改',
+          callback: () => {
+            this.modifyPasswordVisible = true
           }
         }
-      ]
-    }
+      },
+      {
+        title: '我的邮箱',
+        description: '已绑定邮箱',
+        value: this.user_info.email
+      }
+    ]
   },
   methods: {
     handleCancel() {
@@ -79,8 +81,13 @@ export default {
         if (!errors) {
           console.log('values', values)
           modifyPassword(values)
-            .then((res) => {})
-            .catch((e) => {
+            .then(res => {
+              this.$store.dispatch('Logout').then(() => {
+                this.$message.success('修改成功,请重新登录')
+                this.$router.push('/user/login')
+              })
+            })
+            .catch(e => {
               console.log('err', e)
             })
         }
