@@ -11,9 +11,11 @@
             </a-col>
             <a-col :md="8" :sm="24">
               <a-form-item label="交易所名称">
-                <a-select v-model="queryParam.status" placeholder="请选择" default-value="0">
-                  <a-select-option value="0">火币</a-select-option>
-                  <a-select-option value="1">OKEX</a-select-option>
+                <a-select v-model="queryParam.status" placeholder="请选择" default-value="0" @dropdownVisibleChange="fetchGetExchangeList">
+                  <a-spin v-if="exchangeLoading" slot="notFoundContent" size="small" />
+                  <a-select-option v-for="item in exchangeList" :key="item.exchange_id">
+                    {{ item.exchange_name }}
+                  </a-select-option>
                 </a-select>
               </a-form-item>
             </a-col>
@@ -147,6 +149,7 @@
 import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
 import { getRoleList, getServiceList } from '@/api/manage'
+import { getExchangeList } from '@/api/login'
 
 import StepByStepModal from './modules/StepByStepModal'
 import CreateForm from './modules/CreateForm'
@@ -261,7 +264,9 @@ export default {
         })
       },
       selectedRowKeys: [],
-      selectedRows: []
+      selectedRows: [],
+      exchangeLoading: true,
+      exchangeList: []
     }
   },
   filters: {
@@ -347,6 +352,13 @@ export default {
       this.warningVisible = false
       const form = this.$refs.createModal.form
       form.resetFields() // 清理表单数据（可不做）
+    },
+    fetchGetExchangeList() {
+      getExchangeList()
+        .then(res => {})
+        .catch(e => {
+          console.log('err', e)
+        })
     },
     handleSub(record) {
       this.warningVisible = true
