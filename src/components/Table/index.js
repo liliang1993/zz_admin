@@ -11,8 +11,10 @@ export default {
 
       localLoading: false,
       localDataSource: [],
-      localPagination: Object.assign({ pageSizeOptions: ['2', '20', '30', '40'],
-      showTotal: total => `总共 ${total} 条` }, this.pagination)
+      localPagination: Object.assign(
+        { pageSizeOptions: ['2', '20', '30', '40'], showTotal: total => `总共 ${total} 条` },
+        this.pagination
+      )
     }
   },
   props: Object.assign({}, T.props, {

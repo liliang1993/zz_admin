@@ -4,7 +4,7 @@
       <a-col>
         <a-card class="search-list-wrapper">
           <div class="search-opera-wrapper">
-            <a-input-search placeholder="输入交易所名称" @search="onSearch" />
+            <a-input-search placeholder="输入交易所名称" />
           </div>
 
           <div class="exchange-list-wrapper">

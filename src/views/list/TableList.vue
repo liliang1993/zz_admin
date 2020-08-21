@@ -1,5 +1,5 @@
 <template>
-  <page-header-wrapper>
+  <div>
     <a-card :bordered="false">
       <div class="table-page-search-wrapper">
         <a-form layout="inline">
@@ -80,7 +80,7 @@
 
       <s-table
         ref="table"
-        size="default"
+        size="middle"
         :rowKey="(record) => record.account_id"
         :columns="columns"
         :data="loadData"
@@ -97,6 +97,9 @@
         "
         showPagination="auto"
       >
+        <p slot="expandedRowRender" slot-scope="record" style="margin: 0;">
+          {{ record.description }}
+        </p>
         <span slot="exchange" slot-scope="text">
           {{ text | filterExchange }}
         </span>
@@ -147,7 +150,7 @@
 
       <step-by-step-modal ref="modal" @ok="handleOk" />
     </a-card>
-  </page-header-wrapper>
+  </div>
 </template>
 
 <script>
