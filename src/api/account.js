@@ -4,7 +4,9 @@ const accountApi = {
   GetAccountList: '/user/acclist',
   AddAccount: '/user/account',
   DeleteAccount: '/user/del',
-  ModifyAccount: '/user/updateacc'
+  ModifyAccount: '/user/updateacc',
+  GetAccountHolding: '/user/account_holding',
+  GetAccountOrders: '/user/account_orders'
 }
 
 /**
@@ -72,5 +74,30 @@ export function modifyAccount(parameter) {
     url: accountApi.ModifyAccount,
     method: 'post',
     data: parameter
+  })
+}
+
+/**
+ * login func
+ * parameter: {
+ *     username: '',
+ *     password: '',
+ * }
+ * @param parameter
+ * @returns {*}
+ */
+export function getAccountHolding(parameter) {
+  return request({
+    url: accountApi.GetAccountHolding,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function getAccountOrders(parameter) {
+  return request({
+    url: accountApi.GetAccountOrders,
+    method: 'get',
+    params: parameter
   })
 }

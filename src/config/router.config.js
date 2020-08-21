@@ -25,21 +25,19 @@ export const asyncRouterMap = [
         meta: {
           title: '账户列表',
           icon: 'form',
-          keepAlive: true,
-          permission: ['table']
+          keepAlive: true
         }
       },
       {
-        path: '/account-detail/:id',
+        path: '/account-detail/:account_id',
         name: 'DetailAccount',
         hidden: 'true',
         hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
         component: () => import('@/views/account/detail/Index'),
         meta: {
           title: '账户详情',
-          icon: 'form',
-          keepAlive: true,
-          permission: ['table']
+          icon: 'table',
+          keepAlive: true
         }
       },
       {

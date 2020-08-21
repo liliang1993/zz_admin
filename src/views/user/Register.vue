@@ -217,7 +217,9 @@ export default {
         if (!err) {
           state.passwordLevelChecked = false
           register(values)
-            .then((res) => {})
+            .then((res) => {
+              this.$message.success('注册成功！')
+            })
             .catch((err) => {
               console.log('err', err)
             })

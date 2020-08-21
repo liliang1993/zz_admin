@@ -110,7 +110,8 @@
           class="login-button"
           :loading="state.loginBtn"
           :disabled="state.loginBtn"
-          >确定</a-button
+        >
+          确定</a-button
         >
       </a-form-item>
 
@@ -169,13 +170,13 @@ export default {
     }
   },
   created() {
-    get2step({})
-      .then((res) => {
-        this.requiredTwoStepCaptcha = res.result.stepCode
-      })
-      .catch(() => {
-        this.requiredTwoStepCaptcha = false
-      })
+    // get2step({})
+    //   .then((res) => {
+    //     this.requiredTwoStepCaptcha = res.result.stepCode
+    //   })
+    //   .catch(() => {
+    //     this.requiredTwoStepCaptcha = false
+    //   })
     // this.requiredTwoStepCaptcha = true
   },
   methods: {

@@ -81,7 +81,7 @@
       <s-table
         ref="table"
         size="default"
-        :rowKey="(record)=>record.account_id"
+        :rowKey="(record) => record.account_id"
         :columns="columns"
         :data="loadData"
         :customRow="
@@ -117,11 +117,23 @@
 
       <create-form
         ref="createModal"
+        title="新增账户"
         :visible="visible"
         :loading="confirmLoading"
         :model="mdl"
         @cancel="handleCancel"
         @ok="handleOk"
+      />
+      <!--edit model-->
+      <create-form
+        ref="editModal"
+        title="修改账户"
+        :type="1"
+        :visible="editVisible"
+        :loading="editConfirmLoading"
+        :model="editMdl"
+        @cancel="handleCancelEdit"
+        @ok="handleOkEdit"
       />
 
       <warning-form
@@ -173,31 +185,31 @@ const columns = [
     dataIndex: 'exchange_id',
     scopedSlots: { customRender: 'exchange' }
   },
-  {
-    title: '总资金量',
-    width: '100px',
-    dataIndex: 'status1'
-  },
-  {
-    title: '涨跌幅',
-    width: '100px',
-    dataIndex: 'status2'
-  },
-  {
-    title: '当前收益',
-    width: '100px',
-    dataIndex: 'status3'
-  },
-  {
-    title: '保证金',
-    width: '100px',
-    dataIndex: 'status4'
-  },
-  {
-    title: '是否预警',
-    width: '100px',
-    dataIndex: 'status5'
-  },
+  // {
+  //   title: '总资金量',
+  //   width: '100px',
+  //   dataIndex: 'status1'
+  // },
+  // {
+  //   title: '涨跌幅',
+  //   width: '100px',
+  //   dataIndex: 'status2'
+  // },
+  // {
+  //   title: '当前收益',
+  //   width: '100px',
+  //   dataIndex: 'status3'
+  // },
+  // {
+  //   title: '保证金',
+  //   width: '100px',
+  //   dataIndex: 'status4'
+  // },
+  // {
+  //   title: '是否预警',
+  //   width: '100px',
+  //   dataIndex: 'status5'
+  // },
   {
     title: '操作',
     dataIndex: 'action',
@@ -206,26 +218,10 @@ const columns = [
   }
 ]
 
-const exchangeMap = [{ exchange_id: 1, exchange_name: 'huobi' }, { exchange_id: 2, exchange_name: 'okex' }]
-
-const statusMap = {
-  0: {
-    status: 'default',
-    text: '关闭'
-  },
-  1: {
-    status: 'processing',
-    text: '运行中'
-  },
-  2: {
-    status: 'success',
-    text: '已上线'
-  },
-  3: {
-    status: 'error',
-    text: '异常'
-  }
-}
+const exchangeMap = [
+  { exchange_id: 1, exchange_name: 'huobi' },
+  { exchange_id: 2, exchange_name: 'okex' }
+]
 
 export default {
   name: 'TableList',
@@ -243,19 +239,25 @@ export default {
       visible: false,
       confirmLoading: false,
       mdl: null,
+      // edit model
+      editVisible: false,
+      editConfirmLoading: false,
+      editMdl: null,
       // warning model
       warningVisible: false,
+      // 操作时的当前account_id
+      account_id: '',
       // 高级搜索 展开/关闭
       advanced: false,
       // 查询参数
       queryParam: { account_name: '', exchange_id: '' },
       // 加载数据方法 必须为 Promise 对象
-      loadData: parameter => {
+      loadData: (parameter) => {
         console.log('parameter', parameter)
         const { pageNo, pageSize } = parameter
         const requestParameters = { page_number: pageNo, page_size: pageSize, ...this.queryParam }
         console.log('loadData request parameters:', requestParameters)
-        return getAccountList(requestParameters).then(res => {
+        return getAccountList(requestParameters).then((res) => {
           return res
         })
       },
@@ -267,17 +269,11 @@ export default {
   },
   filters: {
     filterExchange(id) {
-      return exchangeMap.find(item => item.exchange_id === id)['exchange_name']
-    },
-    statusFilter(type) {
-      return statusMap[type].text
-    },
-    statusTypeFilter(type) {
-      return statusMap[type].status
+      return exchangeMap.find((item) => item.exchange_id === id)['exchange_name']
     }
   },
   created() {
-    getRoleList({ t: new Date() })
+    // getRoleList({ t: new Date() })
     this.fetchGetExchangeList() // 获得交易所列表选项
   },
   computed: {
@@ -295,9 +291,10 @@ export default {
     },
 
     handleEdit(record) {
-      this.visible = true
+      this.editVisible = true
       console.log('handleEdit', record)
-      this.mdl = { ...record }
+      this.account_id = record.account_id
+      this.editMdl = { ...record }
     },
 
     handleOk() {
@@ -317,7 +314,7 @@ export default {
 
               this.$message.info('账号新增成功')
             })
-            .catch(e => {
+            .catch((e) => {
               this.confirmLoading = false
               console.log('err', e)
             })
@@ -329,9 +326,45 @@ export default {
 
     handleCancel() {
       this.visible = false
-
       const form = this.$refs.createModal.form
       form.resetFields() // 清理表单数据（可不做）
+    },
+
+    handleCancelEdit() {
+      this.editVisible = false
+      const form = this.$refs.editModal.form
+      form.resetFields() // 清理表单数据（可不做）
+    },
+
+    handleOkEdit() {
+      const form = this.$refs.editModal.form
+      this.editConfirmLoading = true
+      form.validateFields((errors, values) => {
+        if (!errors) {
+          console.log('values', values)
+          const params = {
+            ...values,
+            account_id: this.account_id
+          }
+          modifyAccount(params)
+            .then(() => {
+              this.editVisible = false
+              this.editConfirmLoading = false
+              // 重置表单数据
+              form.resetFields()
+              // 刷新表格
+              this.$refs.table.refresh()
+
+              this.$message.info('账号编辑成功')
+            })
+            .catch((e) => {
+              this.editConfirmLoading = false
+              console.log('err', e)
+            })
+        } else {
+          this.editConfirmLoading = false
+        }
+      })
     },
 
     handleWarningOk() {},
@@ -344,11 +377,11 @@ export default {
 
     fetchGetExchangeList() {
       getExchangeList()
-        .then(res => {
+        .then((res) => {
           this.exchangeList = res
           console.log('res', res)
         })
-        .catch(e => {
+        .catch((e) => {
           console.log('err', e)
         })
     },
@@ -374,8 +407,8 @@ export default {
     },
 
     handleRowClick(record) {
-      const { id } = record
-      this.$router.push({ name: 'DetailAccount', params: { id } })
+      const { account_id, account_name } = record
+      this.$router.push({ name: 'DetailAccount', params: { account_id }, query: { account_name } })
       console.log('record', record)
     },
 
@@ -385,12 +418,12 @@ export default {
       deleteAccount({
         account_id: record.account_id
       })
-        .then(res => {
+        .then((res) => {
           console.log('res', res)
           this.$refs.table.refresh()
           this.$message.info('删除成功')
         })
-        .catch(err => {
+        .catch((err) => {
           console.log('err', err)
         })
     }

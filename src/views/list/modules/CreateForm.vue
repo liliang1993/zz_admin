@@ -1,6 +1,6 @@
 <template>
   <a-modal
-    title="新建账户"
+    :title="title"
     :width="640"
     :visible="visible"
     :confirmLoading="loading"
@@ -18,9 +18,15 @@
     <a-spin :spinning="loading">
       <a-form :form="form" v-bind="formLayout">
         <!-- 检查是否有 id 并且大于0，大于0是修改。其他是新增，新增不显示主键ID -->
-        <!-- <a-form-item v-show="model && model.id > 0" label="主键ID">
-          <a-input v-decorator="['id', { initialValue: 0 }]" disabled />
+        <!-- <a-form-item v-if="type == 'edit'" v-show="false" label="主键ID">
+          <a-input v-decorator="['account_id', { initialValue: 0 }]" disabled />
         </a-form-item> -->
+        <a-form-item label="账户别名">
+          <a-input
+            v-decorator="['account_name', { rules: [{ required: true, message: '请输入账户别名！' }] }]"
+            :disabled="type == 1"
+          />
+        </a-form-item>
         <a-form-item label="交易所名称">
           <!-- <a-input v-decorator="['description', {rules: [{required: true, min: 5, message: '请输入至少五个字符的规则描述！'}]}]" /> -->
           <a-select
@@ -37,9 +43,6 @@
         <a-form-item label="Secret Key">
           <a-input v-decorator="['account_private_key', { rules: [{ required: true, message: '请输入秘钥！' }] }]" />
         </a-form-item>
-        <a-form-item label="账户别名">
-          <a-input v-decorator="['account_name', { rules: [{ required: true, message: '请输入账户别名！' }] }]" />
-        </a-form-item>
       </a-form>
     </a-spin>
   </a-modal>
@@ -49,7 +52,7 @@
 import pick from 'lodash.pick'
 
 // 表单字段
-const fields = ['exchange_id', 'account_api_key', 'account_private_key', 'account_name']
+const fields = ['account_id', 'exchange_id', 'account_api_key', 'account_private_key', 'account_name']
 
 export default {
   props: {
@@ -64,6 +67,14 @@ export default {
     model: {
       type: Object,
       default: () => null
+    },
+    title: {
+      type: String,
+      default: () => ''
+    },
+    type: {
+      type: Number,
+      default: () => 0
     }
   },
   data() {
